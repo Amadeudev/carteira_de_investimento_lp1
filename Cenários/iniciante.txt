@@ -1,0 +1,14 @@
+# Estratégia: Carteira Iniciante
+# Formato: ID Custo_Acao(R$) Retorno_Anual(%) Ticker_Acao
+CAPITAL_DISPONIVEL_R$: 1000.00
+ACOES:
+A 400.00 10.0 BIGCORP4
+B 600.00 12.0 SAFETECH3
+C 350.00 8.0 VALIOSA1
+D 250.00 5.0 ESTAVEL5
+
+Solução Ótima de Referência:
+? Ações Selecionadas: {B, C}
+? Custo Total: R$ 950.00
+? Retorno Anual Esperado Total: 20.0%
+
