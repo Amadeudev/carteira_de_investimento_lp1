@@ -12,7 +12,7 @@ typedef struct {
 
 int main() {
     int numero_linhas = 0;
-    FILE *arquivo_acoes = fopen("dados_acoes.txt", "r");
+    FILE *arquivo_acoes = fopen("Cenarios/dados_acoes.txt", "r");
 
     if (arquivo_acoes == NULL) {
         printf("Erro: Nao foi possivel abrir o arquivo 'dados_acoes.txt'.\n");
