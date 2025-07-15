@@ -1,102 +1,134 @@
 #include <stdio.h>
 #include <stdlib.h>
-//
-// ESSE CODIGO É INTEIRO GPT, MAS FUNCIONAL, O INTUITO DELE É SERVIR PRA NOSSA BASE PRO CODIGO DE VERDADE, MAIS LIMPO E COMENTADO.
-//
-typedef struct {
+#include <locale.h>
+
+typedef struct{
     char sigla[10];
     double valor;
     double retorno;
     char nome[100];
-} Acoes;
+}Acoes;
 
 int main() {
-    int n = 0;
+    setlocale(LC_ALL, "");
+    setlocale(LC_NUMERIC, "C");
+
+    Acoes *acoes;
+    //n para contar quantas linhas existem no arquivo.
+    int nAcoes = 0;
+
+    //abrindo arquivo para leitura
     FILE *arquivo = fopen("dados_acoes.txt", "r");
+        //se arquivo existir, executa as linhas
+        if (arquivo == NULL){
+            printf("erro ao abrir arquivo\n");
+            return 1;
+        }
 
-    if (!arquivo) {
-        printf("erro ao abrir o arquivo.\n");
-        return 1;
-    }
+        //vai contar a quantidade de linhas do arquivo para alocar dinamicamente o Arr[Ações] com o tamanho de linhas do arquivo dados_acoes
+        char linhas[256];
+        while (fgets(linhas, sizeof(linhas), arquivo) != NULL){
+            nAcoes++;
+        }
+        // tá verificando se o arquivo tem dados.
 
-    char linhas[256];
-    while (fgets(linhas, sizeof(linhas), arquivo) != NULL) n++;
+        if (nAcoes==0){
+            printf("sem dados.\n");
+            fclose(arquivo);
+            return 0;
+        }
 
-    if (n == 0) {
-        printf("arquivo vazio.\n");
-        fclose(arquivo);
-        return 0;
-    }
+        //aloca dinamicamente o array[acoes]
+         acoes = malloc(nAcoes *sizeof(Acoes));
 
-    Acoes *acoes = malloc(n * sizeof(Acoes));
-    if (!acoes) {
-        printf("erro ao alocar memória.\n");
-        fclose(arquivo);
-        return 1;
-    }
-
-    rewind(arquivo);
-    for (int i = 0; i < n; i++) {
-        if (fscanf(arquivo, "%s %lf %lf %s", acoes[i].sigla, &acoes[i].valor, &acoes[i].retorno, acoes[i].nome) != 4) {
-            printf("Erro ao ler linha %d.\n", i+1);
-            free(acoes);
+        //verifica erro de alocação
+        if (acoes == NULL){
+            printf("erro ao alocar memoria.\n");
             fclose(arquivo);
             return 1;
         }
-    }
-    fclose(arquivo);
+        rewind(arquivo); //retorna o ponteiro *arquivo pro começo do arquivo
 
-    double capitalInicial;
-    printf("Digite a quantidade de capital para investir: ");
-    scanf("%lf", &capitalInicial);
-
-    int capital_discreto = (int)(capitalInicial / 10);
-
-    // Alocar DP 2D
-    double **dp = malloc((n+1) * sizeof(double*));
-    for (int i = 0; i <= n; i++) dp[i] = calloc(capital_discreto+1, sizeof(double));
-
-    if (!dp) {
-        printf("erro ao alocar DP.\n");
-        free(acoes);
-        return 1;
-    }
-
-    // Preencher DP
-    for (int i = 1; i <= n; i++) {
-        int custo_i = (int)(acoes[i-1].valor / 10);
-        for (int w = 0; w <= capital_discreto; w++) {
-            if (custo_i <= w) {
-                double incluir = acoes[i-1].retorno + dp[i-1][w - custo_i];
-                double excluir = dp[i-1][w];
-                dp[i][w] = (incluir > excluir) ? incluir : excluir;
-            } else {
-                dp[i][w] = dp[i-1][w];
+        //le o arquivo e registra os dados no array[acoes], na ordem: Sigla | Valor | Retorno | Nome_Acao.
+        for (int i = 0; i < nAcoes; i++) {
+        // verifica se a quantidade de dados lidos é igual a quantidade necessaria para cada acao, caso nao seja, retorna erro.
+        //caso seja lido apenas tres dados ou menos (como Sigla Valor Retorno ) retorna eeeo, é necessario que todas as ações tenham os 4 dados necessarios.
+        int verificar = fscanf(arquivo, "%s %lf %lf %s", acoes[i].sigla, &acoes[i].valor, &acoes[i].retorno, acoes[i].nome);
+        if (verificar != 4) {
+            printf("Erro ao ler os dados, necessario todos os dados para todas as ações.\n");
+            fclose(arquivo);
+            return 1;
             }
         }
-    }
+        fclose(arquivo);
 
-    printf("\nRetorno máximo possível: %.2lf%%\n", dp[n][capital_discreto]);
+    // CASO DÊ CERTO, COMEÇA O PROCESSO DO ALGORITMO.
+    //______________________________________________________________
 
-    // Traceback
-    printf("\nCarteira ótima:\n");
-    double custo_total = 0.0;
-    int w = capital_discreto;
-    for (int i = n; i >= 1; i--) {
-        if (dp[i][w] != dp[i-1][w]) {
-            printf("- %s (%s) | Custo: R$%.2lf | Retorno: %.2lf%%\n",
-                   acoes[i-1].sigla, acoes[i-1].nome, acoes[i-1].valor, acoes[i-1].retorno);
-            custo_total += acoes[i-1].valor;
-            w -= (int)(acoes[i-1].valor / 10);
+    float capitalInicial;
+    printf("Digite a quantidade de capital para investir: ");
+    scanf("%f",&capitalInicial);
+
+    printf("----------------------------------------\n");
+    printf("Carteira de Investimentos Otimizada\n");
+    printf("----------------------------------------\n");
+    printf("Capital Disponivel: R$ %.2f\n", capitalInicial);
+
+        // multiplica pra ser inteiro, trabalhar com inteiros é mais simples
+        int capitalInt = (capitalInicial * 100);
+
+        // criando tabela da mochila (matriz dinamica)
+        // usa nAcoes por que a matriz para o funcionamento da mochila deve ser n acoes +1 x n acoes +1
+        float **mochila = malloc((nAcoes + 1) * sizeof(float *));
+        for (int i = 0; i < nAcoes+1; i++){
+            mochila[i] = malloc((capitalInt + 1) * sizeof(float));
         }
-    }
 
-    printf("\nCusto total da carteira: R$%.2lf\n", custo_total);
+        // alocar 0 para todas as posições.
+        for (int i = 0; i<nAcoes+1; i++){
+            for (int j = 0 ; j<nAcoes+1; j++){
+                mochila[i][j]=0;
+            }
+        }
 
-    // Liberação de memória
-    for (int i = 0; i <= n; i++) free(dp[i]);
-    free(dp);
-    free(acoes);
+        // enche a mochila com as opções
+        for (int i = 1; i <= nAcoes; i++) {
+            int custoi = (acoes[i - 1].valor * 100+0.5);
+            for (int j = 0; j <= capitalInt; j++) {
+                if (custoi <= j) {
+                    float incluir = acoes[i - 1].retorno + mochila[i - 1][j - custoi];
+                    float excluir = mochila[i - 1][j];
+                    mochila[i][j] = (incluir > excluir) ? incluir : excluir;
+                } else {
+                    mochila[i][j] = mochila[i - 1][j];
+                }
+            }
+        }
+
+        // volta na mochila, sempre procurando as acoes escolhidas que foram selecionadas
+        printf("\nAções a comprar:\n");
+        float custoTotal = 0.0;
+        int j = capitalInt;
+        for (int i = nAcoes; i >= 1; i--) {
+            if (mochila[i][j] != mochila[i - 1][j]) {
+                printf("- %s (%s) (Custo: R$ %.2f, Retorno: %.2f%%)\n",
+                       acoes[i - 1].sigla, acoes[i - 1].nome, acoes[i - 1].valor, acoes[i - 1].retorno);
+                custoTotal += acoes[i - 1].valor;
+                j -= (acoes[i - 1].valor * 100);
+            }
+        }
+
+        printf("\nResumo da Cateira:");
+        printf("\n- Custo Total: R$ %.2f\n", custoTotal);
+        float retornoMax = mochila[nAcoes][capitalInt]; // valor maximo possível
+        printf("- Retorno Máximo Esperado: %.2f%%\n", retornoMax);
+        printf("----------------------------------------\n");
+
+        // limpa a memoria
+        for (int i = 0; i <= nAcoes; i++){
+        free(mochila[i]);}
+        free(mochila);
+        free(acoes);
 
     return 0;
 }
