@@ -39,7 +39,7 @@ int main() {
         }
 
         //aloca dinamicamente o array[acoes]
-         acoes = malloc(nAcoes *sizeof(Acoes));
+        acoes = malloc(nAcoes *sizeof(Acoes));
 
         //verifica erro de alocação
         if (acoes == NULL){
@@ -54,11 +54,11 @@ int main() {
         // verifica se a quantidade de dados lidos é igual a quantidade necessaria para cada acao, caso nao seja, retorna erro.
         //caso seja lido apenas tres dados ou menos (como Sigla Valor Retorno ) retorna eeeo, é necessario que todas as ações tenham os 4 dados necessarios.
         int verificar = fscanf(arquivo, "%s %lf %lf %s", acoes[i].sigla, &acoes[i].valor, &acoes[i].retorno, acoes[i].nome);
-        if (verificar != 4) {
-            printf("Erro ao ler os dados, necessario todos os dados para todas as ações.\n");
-            fclose(arquivo);
-            return 1;
-            }
+            if (verificar != 4) {
+                printf("Erro ao ler os dados, necessario todos os dados para todas as ações.\n");
+                fclose(arquivo);
+                return 1;
+                }
         }
         fclose(arquivo);
 
@@ -112,7 +112,7 @@ int main() {
         for (int i = nAcoes; i >= 1; i--) {
             if (mochila[i][j] != mochila[i - 1][j]) {
                 printf("- %s (%s) (Custo: R$ %.2f, Retorno: %.2f%%)\n",
-                       acoes[i - 1].sigla, acoes[i - 1].nome, acoes[i - 1].valor, acoes[i - 1].retorno);
+                acoes[i - 1].sigla, acoes[i - 1].nome, acoes[i - 1].valor, acoes[i - 1].retorno);
                 custoTotal += acoes[i - 1].valor;
                 j -= (acoes[i - 1].valor * 100);
             }
