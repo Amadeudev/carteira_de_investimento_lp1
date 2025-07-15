@@ -1,0 +1,1 @@
+Projeto final da disciplina de Linguagem de Programação I desenvolvido para solucionar o problema de otimização de carteira de investimentos, utilizando a linguagem C e o paradigma de Programação Dinâmica.
