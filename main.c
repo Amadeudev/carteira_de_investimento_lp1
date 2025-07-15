@@ -77,4 +77,76 @@ int main() {
             return 1;
         }
     }
+
+        for (int i = 1; i <= numero_linhas; i++) {
+        int custo_acao_atual_discreto = (int)round(acoes_disponiveis[i-1].valor / 10.0);
+        for (int j = 1; j <= capital_discreto; j++) {
+            if (custo_acao_atual_discreto <= j) {
+                double retorno_incluindo = acoes_disponiveis[i-1].retorno + dp[i-1][j - custo_acao_atual_discreto];
+                double retorno_excluindo = dp[i-1][j];
+                
+                if (retorno_incluindo > retorno_excluindo) {
+                    dp[i][j] = retorno_incluindo;
+                } else {
+                    dp[i][j] = retorno_excluindo;
+                }
+            } else {
+                dp[i][j] = dp[i-1][j];
+            }
+        }
+    }
+
+    double retorno_maximo_total = dp[numero_linhas][capital_discreto];
+    double custo_final_carteira = 0.0;
+    int *acoes_selecionadas = (int *)calloc(numero_linhas, sizeof(int));
+    if (acoes_selecionadas == NULL) {
+        printf("Erro: Falha na alocacao de memoria para o array de selecao.\n");
+        for (int i = 0; i <= numero_linhas; i++) free(dp[i]);
+        free(dp);
+        free(acoes_disponiveis);
+        return 1;
+    }
+
+    int i_back = numero_linhas;
+    int j_back = capital_discreto;
+    while (i_back > 0 && j_back >= 0) {
+        if (dp[i_back][j_back] != dp[i_back-1][j_back]) {
+            acoes_selecionadas[i_back-1] = 1;
+            custo_final_carteira += acoes_disponiveis[i_back-1].valor;
+            j_back -= (int)round(acoes_disponiveis[i_back-1].valor / 10.0);
+        }
+        i_back--;
+    }
+
+    printf("\n----------------------------------------\n");
+    printf("  Resultado da Otimizacao\n");
+    printf("----------------------------------------\n");
+    printf("Capital Disponivel: R$ %.2f\n\n", capital_investimento);
+
+    printf("Acoes Sugeridas para Compra:\n");
+    int total_acoes_compradas = 0;
+    for (int k = 0; k < numero_linhas; k++) {
+        if (acoes_selecionadas[k] == 1) {
+            printf("- %s (%s) | Custo: R$%.2f | Retorno: %.1f%%\n",
+                   acoes_disponiveis[k].sigla, acoes_disponiveis[k].nome, 
+                   acoes_disponiveis[k].valor, acoes_disponiveis[k].retorno * 100.0);
+            total_acoes_compradas++;
+        }
+    }
+
+    if (total_acoes_compradas == 0) {
+        printf("Nenhuma acao pode ser comprada com o capital disponivel.\n");
+    }
+
+    printf("\nResumo da Carteira Otimizada:\n");
+    printf("- Custo Total Estimado: R$%.2f\n", custo_final_carteira);
+    printf("- Retorno Anual Esperado: %.1f%%\n", retorno_maximo_total * 100.0);
+    printf("----------------------------------------\n");
+
+    for (int i = 0; i <= numero_linhas; i++) free(dp[i]);
+    free(dp);
+    free(acoes_disponiveis);
+    free(acoes_selecionadas);
+
+    return 0;
 }
