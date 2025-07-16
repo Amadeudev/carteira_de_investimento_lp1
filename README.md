@@ -19,8 +19,8 @@ Uma consultoria de investimentos precisa de uma ferramenta computacional para ot
 
 ### 3. Especificações Técnicas
 * **Entradas do Programa:**
-    * `Capital_Total`: Um valor decimal (`float` ou `double`) que representa o montante máximo a ser investido.
-    * `Lista_de_Ações`: Lida a partir de um arquivo, contendo o custo (decimal) e o retorno anual esperado (decimal) para cada ação.
+    * `capitalInicial`: Um valor decimal (`float` ou `double`) que representa o montante máximo a ser investido.
+    * `listaDeAções`: Lida a partir de um arquivo, contendo o custo (decimal) e o retorno anual esperado (decimal) para cada ação.
 * **Saída Esperada:**
     * A lista de ações que compõem a carteira ótima.
     * O custo total da carteira selecionada.
