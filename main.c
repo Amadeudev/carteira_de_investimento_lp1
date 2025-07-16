@@ -118,7 +118,7 @@ int main() {
             }
         }
 
-        printf("\nResumo da Cateira:");
+        printf("\nResumo da Carteira:");
         printf("\n- Custo Total: R$ %.2f\n", custoTotal);
         float retornoMax = mochila[nAcoes][capitalInt]; // valor maximo possível
         printf("- Retorno Máximo Esperado: %.2f%%\n", retornoMax);
